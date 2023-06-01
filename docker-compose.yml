@@ -18,7 +18,7 @@ services:
       - tg_bot
 
   pgadmin:
-    image: jbergknoff/pgadmin4
+    image: biarms/pgadmin4:linux-arm64v8-2.1
     ports:
       - "8080:80"
     env_file:
