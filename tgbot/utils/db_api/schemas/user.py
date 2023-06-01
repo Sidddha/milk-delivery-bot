@@ -1,6 +1,5 @@
-from sqlalchemy import Column, BigInteger, String, sql, Integer
+from sqlalchemy import Column, BigInteger, String, sql, Integer, ARRAY
 from tgbot.utils.db_api.db_gino import TimedBaseModel
-from sqlalchemy.dialects import postgresql
 
     
 class User(TimedBaseModel):
@@ -10,7 +9,7 @@ class User(TimedBaseModel):
     phone = Column(Integer)
     status = Column(String(15))
     address = Column(String(150))
-    geo = Column(postgresql.POINT())
+    geo = Column(ARRAY(String))
 
     @property
     def latitude(self):
