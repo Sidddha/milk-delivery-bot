@@ -1,23 +1,76 @@
-version: '3.3'
+version: '3.9'
 
 services:
-  bot:
-    image: "${BOT_IMAGE_NAME:-tg_bot-image}"
-    container_name: "${BOT_CONTAINER_NAME:-tg_bot-container}"
-    stop_signal: SIGINT
-    build:
-      context: .
-    working_dir: "/usr/src/app/${BOT_NAME:-tg_bot}"
-    volumes:
-    - .:/usr/src/app/${BOT_NAME:-tg_bot}
-    command: python3 -m bot
+  db:
+    image: postgres:latest
     restart: always
     env_file:
-      - ".env"
+      - ".env"    
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}      
+    ports: 
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
     networks:
-    - tg_bot
+      - tg_bot
 
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "8080:80"
+    env_file:
+      - ".env"       
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: 'True'
+      PGADMIN_ENABLE_CSRF_PROTECTION: 'True'
+      PGADMIN_SERVER_JSON_DATA: 
+        '[{"Name": "pg", 
+        "Group": "Servers", 
+        "Port": 5432, 
+        "Username": "postgres", 
+        "Password": "${DB_PASSWORD}", 
+        "Host": "db", 
+        "SSLMode": "prefer", 
+        "MaintenanceDB": "${DB_NAME}", 
+        "DBRestriction": "${DB_NAME}"
+        }]'
+    restart: always
 
+    bot:
+      image: "${BOT_IMAGE_NAME:-image}"
+      container_name: "${BOT_CONTAINER_NAME:-container}"
+      stop_signal: SIGINT
+      build:
+        context: .
+      depends_on:
+        - db      
+      working_dir: "/usr/src/app/${BOT_NAME:-tg_bot}"
+      volumes:
+      - .:/usr/src/app/${BOT_NAME:-tg_bot}
+      command: python3 -m app
+      restart: always
+      env_file:
+        - ".env"
+      environment:
+        BOT_TOKEN: ${BOT_TOKEN}
+        DB_HOST: db
+        DB_PORT: ${DB_PORT}
+        DB_NAME: ${DB_NAME}
+        DB_USER: ${DB_USER}
+        DB_PASSWORD: ${DB_PASSWORD}    
+      networks:
+      - tg_bot
+      ports:
+        - "80:80"   
+
+volumes:
+  db-data:
+  
 networks:
   tg_bot:
     driver: bridge
