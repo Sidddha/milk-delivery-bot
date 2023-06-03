@@ -2,12 +2,10 @@ import asyncio
 import logging
 
 
-from tgbot import filters
-from tgbot import handlers
+from tgbot import filters, middlewares, handlers
 from tgbot.misc.set_bot_commands import set_default_commands
 from tgbot.misc.notify_admins import on_startup_notify
 from tgbot.middlewares.environment import EnvironmentMiddleware
-from tgbot import middlewares
 from loader import bot, logger, dp, db, config
 from tgbot.utils.db_api import db_commands, db_gino
 
@@ -39,8 +37,6 @@ async def main():
     await db.gino.create_all()
     await on_startup_notify(dp)
 
-    # db.add_user(504168024, "Siddha", "USER")
-    # db.update_status("ADMIN", 504168024)
     print(await db_commands.select_all_users())
 
     # start
