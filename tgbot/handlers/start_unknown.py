@@ -5,20 +5,17 @@ from aiogram.dispatcher.storage import FSMContext
 from tgbot.misc.states import NewUser
 from loader import bot, config
 from tgbot.utils.db_api import db_commands 
+from tgbot.keyboards import callback_datas, registration_keyboard
+from tgbot.keyboards.registration_keyboard import registration_callback
 
 db = db_commands
+btn = registration_keyboard.Button
+callback = callback_datas.order_callback
 
 async def start_unknown(message: types.Message, user: User, state: FSMContext):
     """ Вызывается если пользователь неизвестен. """
-    request_phone_number_keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Отпраить номер", callback_data="request_phone_number")
-            ]
-        ]
-    )
     await message.answer(f"Здравствуйте, {user.name}. Похоже вы здесь впервые. Для того чтобы сделать заказ укажите ваш номер телефона и адрес для доставки.",
-                         reply_markup=request_phone_number_keyboard)
+                         reply_markup=btn.request_phone_number)
     await state.reset_state(with_data=False)
     async with state.proxy() as data:
         data["phone"] = 0
@@ -30,15 +27,8 @@ async def get_phone_number(cq: types.CallbackQuery, state: FSMContext, phone: ty
     data = await state.get_data()   
     data["phone"] = phone
     await state.update_data(data=data, kwargs="phone")
-    request_geo_keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Отпраить геолокацию", callback_data="request_geo")
-            ]
-        ]
-    )   
     await types.Message.answer(f"Хорошо, теперь напишите ваш адрес или просто поделитесь геолокацией.", 
-                               reply_markup=request_geo_keyboard)
+                               reply_markup=btn.request_geo)
     await NewUser.address.set()
 
 
@@ -47,7 +37,7 @@ async def get_phone_number(cq: types.CallbackQuery, state: FSMContext, phone: ty
 new_order_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="Новый заказ", callback_data="new_order")
+            InlineKeyboardButton(text="Новый заказ", callback_data=callback.new(order="new_order"))
         ]
     ]
 ) 
@@ -77,7 +67,7 @@ async def get_address(message: types.Message, state: FSMContext):
 
 def register_unknown(dp: Dispatcher):
     dp.register_message_handler(start_unknown, commands=["start"], state="*")
-    dp.register_callback_query_handler(get_phone_number, callback_data="request_phone_number", state="*")
-    dp.register_callback_query_handler(get_geo, callback_data="request_geo", state="*")
+    dp.register_callback_query_handler(get_phone_number, registration_callback.filter(reg="request_phone_number"), state="*")
+    dp.register_callback_query_handler(get_geo, registration_callback.filter(reg="request_geo"), state="*")
     dp.register_message_handler(get_address, state=NewUser.address)
 

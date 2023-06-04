@@ -1,4 +1,4 @@
-from .calback_datas import registration_callback
+from .callback_datas import registration_callback
 
 
 class Button():
@@ -13,6 +13,14 @@ class Button():
             "text": "Отправить запрос", 
             "callback_data": registration_callback.new(reg="send_request")
         }
+        self.request_geo= {
+            "text": "Отпраить геолокацию", 
+            "callback_data": registration_callback.new(reg="request_geo")
+        }
+        self.request_phone_number= {
+            "text": "Отправить номер", 
+            "callback_data": registration_callback.new(reg="request_phone_number")
+        }               
         self.accept= {
             "text": "Принять", 
             "callback_data": registration_callback.new(reg="accept")           
