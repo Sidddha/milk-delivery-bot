@@ -77,7 +77,7 @@ async def get_address(message: types.Message, state: FSMContext):
 
 def register_unknown(dp: Dispatcher):
     dp.register_message_handler(start_unknown, commands=["start"], state="*")
-    dp.register_callback_query_handler(get_phone_number, CallbackData="request_phone_number", state="*")
-    dp.register_callback_query_handler(get_geo, CallbackData="request_geo", state="*")
+    dp.register_callback_query_handler(get_phone_number, callback_data="request_phone_number", state="*")
+    dp.register_callback_query_handler(get_geo, callback_data="request_geo", state="*")
     dp.register_message_handler(get_address, state=NewUser.address)
 
