@@ -36,6 +36,6 @@ class TimedBaseModel(BaseModel):
     )
 
 async def on_startup(dispatcher: Dispatcher):
-    print("Connecting to PjstgreSQL")
+    print("Connecting to PostgreSQL")
     await db.set_bind(config.db.url)
 

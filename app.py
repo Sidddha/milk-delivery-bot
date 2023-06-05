@@ -32,7 +32,6 @@ async def main():
     filters.register_all_filters(dp)
     handlers.register_handlers(dp)
     await set_commands(dp)
-    await db.set_bind(config.db.url)
     await db_gino.on_startup(dp)
     await db.gino.create_all()
     await on_startup_notify(dp)

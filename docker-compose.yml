@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   db:
-    image: arm64v8/postgres
+    image: ${POSTGRES_IMAGE}
     restart: always
     env_file:
       - ".env"    
@@ -18,7 +18,7 @@ services:
       - tg_bot
 
   pgadmin:
-    image: biarms/pgadmin4:linux-arm64v8-2.1
+    image: ${PGADMIN_IMAGE}
     ports:
       - "8080:80"
     env_file:
